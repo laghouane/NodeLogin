@@ -1,31 +1,49 @@
 const mongoose = require('mongoose');
 
 const userSchema = mongoose.Schema({
-    username: {
+    nom: {
         type: String,
-        required: [true, 'Please add a username']
+        required: [true, 'Tapez un nom']
     },
-    password: {type: String, required: [true, 'Please add a password'],
+    prenom: {
+        type: String,
+        required: [true, 'Tapez un prenom']
+    },
+    password: {type: String, required: [true, 'Tapez un mot de passe'],
     minlength: 6,
     select: false
     },
     mail: {type: String,
-        required: [true, 'Please add an email'],
+        required: [true, 'Tapez un e-mail'],
         unique: true,
         match: [
           // eslint-disable-next-line no-useless-escape
           /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-          'Please add a valid email'
+          'Tapez un e-mail valide'
     ]},
+    telephone: {
+        type: Number,
+        required: [true, "Tapez un numero de telephone"],
+      },
     role: {type: String,
-        enum: ['admin', 'owner', 'client'],
-        default: 'client'},
-    joinedAt: {
-        type: Date,
-        default: Date.now
+        enum: ['employe', 'responsable'],
+        default: 'employe'},
+    posteTravail: {
+        type: String,
+        required: [true, 'Tapez un poste de travail']
     },
-    isActive:{type: Boolean,
-        default: true}
+    grade:{
+        type: String,
+        required: [true, 'Tapez un grade']
+    },
+    privateKey: {
+        type: String,
+        required: true
+    },
+    publicKey: {
+        type: String,
+        required: true
+    }
 })
 
 const User = mongoose.model('User', userSchema)

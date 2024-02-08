@@ -4,17 +4,44 @@ const asyncHandler = require('express-async-handler')
 
 const  User  = require('../models/user') 
 const { hashUtils, jwtUtils } = require('../utils') 
-
+const crypto = require('crypto');
 
 const authRouter = Router()
 
+function generateKeyPair() {
+  return crypto.generateKeyPairSync('rsa', {
+      modulusLength: 2048, // Longueur de la clé en bits
+      publicKeyEncoding: {
+          type: 'spki', // Format de l'encodage de la clé publique
+          format: 'pem' // Format du fichier (pem est couramment utilisé)
+      },
+      privateKeyEncoding: {
+          type: 'pkcs8', // Format de l'encodage de la clé privée
+          format: 'pem' // Format du fichier (pem est couramment utilisé)
+      }
+  });
+}
+
 authRouter.post('/signup', asyncHandler(async (request, response) => {
-    
-    const user = await User.create({
-      ...request.body,
-      password: await hashUtils.hashPassword(request.body.password)
-    })
-  
+
+    const { publicKey, privateKey } = generateKeyPair();
+
+    const newUser = new User({
+      nom: request.body.nom,
+      prenom: request.body.prenom,
+      mail: request.body.prenom,
+      telephone: request.body.telephone,
+      posteTravail: request.body.posteTravail,
+      grade: request.body.grade,
+      password: await hashUtils.hashPassword(request.body.password),
+      // Stockage de la clé publique et privée dans la base de données
+      publicKey: publicKey,
+      privateKey: privateKey,
+      // Autres données de l'utilisateur
+  });
+
+   await newUser.save();
+
     response.status(201).json({
       status: 'success',
       data: { user, token: jwtUtils.generateToken(user._id) }

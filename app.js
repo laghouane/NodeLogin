@@ -1,7 +1,6 @@
 const express = require('express');
-const itemsRouter = require('./routers/items');
 const usersRouter = require('./routers/users');
-const orderRouter = require('./routers/order');
+const reclamationRouter = require('./routers/reclamation');
 const authRouter = require('./routers/auth');
 const fileUpload = require('express-fileupload');
 
@@ -17,11 +16,10 @@ app.use(express.json())
 app.use(fileUpload())
 
 // using routers
-app.use('/api/v1/items', itemsRouter)
 
 app.use('/api/v1/users', usersRouter)
 
-app.use('/api/v1/orders', orderRouter)
+app.use('/api/v1/orders', reclamationRouter)
 
 app.use('/api/v1/auth', authRouter)
 

@@ -1,71 +1,49 @@
 const express = require("express");
-const order = require("../models/order");
+const reclamation = require("../models/reclamation");
 const { mongoose } = require("mongoose");
 const asyncHandler = require("express-async-handler");
 const {protect}=require('../middlewares/auth.middleware')
 const router = express.Router();
 
-// GET /api/v1/orders
+// GET /api/v1/reclamations
 router.get("/", protect , async (req, res) => {
   try {
-    const result = await order.find(req.query);
+    const result = await reclamation.find(req.query);
     res.status(200).json({ ok: true, data: result });
   } catch (err) {
     res.status(404).json({ ok: false, data: err });
   }
 });
-
-const syncItemsAndGetTotalPrices = async (purchases) => {
-  const stock = await item.find({
-    _id: { $in: purchases.map((p) => p.item) },
-  });
-
-  let total = 0;
-  stock.forEach(async (item) => {
-    const targetPurchase = purchases.find(
-      (p) => p.item === item._id.toString()
-    );
-    const nextQuantity = item.quantity - targetPurchase.quantity;
-    total += item.price * targetPurchase.quantity;
-    await item.findByIdAndUpdate(
-      targetPurchase.item,
-      { quantity: nextQuantity },
-      { runValidators: true }
-    );
-  });
-
-  return { total };
-};
-// POST /api/v1/orders
+// POST /api/v1/reclamations
 router.post("/", protect, asyncHandler(async (request, response) => {
-    const { client, purchases, ...requestBody } = request.body;
-    const { total } = await syncItemsAndGetTotalPrices(purchases);
+    const { user, ...requestBody } = request.body;
+    
 
-    const order = await (
-      await OrderModel.create({ ...requestBody, total, client, purchases })
-    ).populate("client purchases.item");
+    const reclamation = await (
+      await reclamationModel.create({ ...requestBody, user })
+    ).populate("user");
 
     response.status(201).json({
       status: "success",
-      data: order,
+      data: reclamation,
     });
   })
 );
 
-// GET /api/v1/orders/:id
+// GET /api/v1/reclamations/:id
 router.get("/:id", protect, async (req, res) => {
   try {
-    const result = await order.findById(req.params.id);
+    const result = await reclamation.findById(req.params.id);
     res.status(200).json({ ok: true, data: result });
   } catch (err) {
     res.status(404).json({ ok: false, data: err });
   }
 });
 
-// PUT /api/v1/orders/:id
+// PUT /api/v1/reclamations/:id
 router.put("/:id", protect, async (req, res) => {
   try {
-    const result = await order.findOneAndUpdate(
+    const result = await reclamation.findOneAndUpdate(
       { _id: req.params.id },
       req.body,
       {
@@ -81,10 +59,10 @@ router.put("/:id", protect, async (req, res) => {
   }
 });
 
-// PATCH /api/v1/orders/:id
+// PATCH /api/v1/reclamations/:id
 router.patch("/:id", protect, async (req, res) => {
   try {
-    const result = await order.findbyIdAndUpdate(
+    const result = await reclamation.findbyIdAndUpdate(
       req.params.id,
       { status: req.body.status },
       {
@@ -100,10 +78,10 @@ router.patch("/:id", protect, async (req, res) => {
   }
 });
 
-// DELETE /api/v1/orders/:id
+// DELETE /api/v1/reclamations/:id
 router.delete("/:id", protect, async (req, res) => {
   try {
-    const result = await order.findByIdAndDelete(req.params.id);
+    const result = await reclamation.findByIdAndDelete(req.params.id);
     res.status(200).json({ ok: true, data: result });
   } catch (err) {
     res.status(404).json({ ok: false, data: err });
